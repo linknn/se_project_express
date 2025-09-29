@@ -19,11 +19,14 @@ const getUser = (req, res) => {
       if (!user) {
         return res.status(404).send({ message: "User not found" });
       }
-      return res.send(user);
+      return res.status(200).send(user);
     })
     .catch((err) => {
       console.error(err);
-      return res.status(500).send({ message: "Server error" });
+      if (err.name === "CastError") {
+        return res.status(400).send({ message: "Invalid user ID" });
+      }
+      return res.status(500).send({ message: err.message });
     });
 };
 
@@ -34,6 +37,9 @@ const createUser = (req, res) => {
     .then((newUser) => res.status(201).send(newUser))
     .catch((err) => {
       console.error(err);
+      if (err.name === "ValidationError") {
+        return res.status(400).send({ message: err.message });
+      }
       return res.status(500).send({ message: err.message });
     });
 };

@@ -13,6 +13,7 @@ mongoose
   })
   .catch(console.error);
 
+app.use(express.json());
 app.use("/", mainRouter);
 
 app.use((req, res) => {
