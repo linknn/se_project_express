@@ -1,35 +1,12 @@
 const User = require("../models/user");
+const {
+  BAD_REQUEST,
+  INTERNAL_SERVER_ERROR,
+  NOT_FOUND,
+  orFailWithNotFound,
+} = require("../utils/errors");
 
-//  GET /users
-
-const getUsers = (req, res) => {
-  User.find({})
-    .then((users) => res.send(users))
-    .catch((err) => {
-      console.error(err);
-      res.status(500).send({ message: err.message });
-    });
-};
-
-const getUser = (req, res) => {
-  const { userId } = req.params;
-
-  User.findById(userId)
-    .then((user) => {
-      if (!user) {
-        return res.status(404).send({ message: "User not found" });
-      }
-      return res.status(200).send(user);
-    })
-    .catch((err) => {
-      console.error(err);
-      if (err.name === "CastError") {
-        return res.status(400).send({ message: "Invalid user ID" });
-      }
-      return res.status(500).send({ message: err.message });
-    });
-};
-
+// CREATE
 const createUser = (req, res) => {
   const { name, avatar } = req.body;
 
@@ -38,9 +15,37 @@ const createUser = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.name === "ValidationError") {
-        return res.status(400).send({ message: err.message });
+        return res.status(BAD_REQUEST).send({ message: err.message });
       }
-      return res.status(500).send({ message: err.message });
+      return res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
+    });
+};
+
+//  READ
+const getUsers = (req, res) => {
+  User.find({})
+    .then((users) => res.send(users))
+    .catch((err) => {
+      console.error(err);
+      res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
+    });
+};
+
+const getUser = (req, res) => {
+  const { userId } = req.params;
+
+  User.findById(userId)
+    .orFail(orFailWithNotFound("User"))
+    .then((user) => res.status(200).send(user))
+    .catch((err) => {
+      console.error(err);
+      if (err.name === "CastError") {
+        return res.status(BAD_REQUEST).send({ message: err.message });
+      }
+      if (err.name === "DocumentNotFoundError") {
+        return res.status(NOT_FOUND).send({ message: err.message });
+      }
+      return res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
     });
 };
 
