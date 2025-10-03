@@ -1,23 +1,57 @@
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+
 const User = require("../models/user");
 const {
   BAD_REQUEST,
   INTERNAL_SERVER_ERROR,
   NOT_FOUND,
   orFailWithNotFound,
+  CONFLICT,
+  UNAUTHORIZED,
 } = require("../utils/errors");
+const { JWT_SECRET } = require("../utils/config");
 
 // CREATE
 const createUser = (req, res) => {
-  const { name, avatar } = req.body;
+  const { name, avatar, email, password } = req.body;
 
-  User.create({ name, avatar })
+  bcrypt
+    .hash(password, 10)
+    .then((hash) =>
+      User.create({
+        name,
+        avatar,
+        email,
+        password: hash,
+      })
+    )
     .then((newUser) => res.status(201).send(newUser))
     .catch((err) => {
       console.error(err);
       if (err.name === "ValidationError") {
         return res.status(BAD_REQUEST).send({ message: err.message });
       }
+      if (err.code === 11000) {
+        return res.status(CONFLICT).send({ message: err.message });
+      }
       return res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
+    });
+};
+
+const loginUser = (req, res) => {
+  const { email, password } = req.body;
+
+  User.findUserByCredentials({ email, password })
+    .then((user) => {
+      const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
+        expiresIn: "7d",
+      });
+      res.send({ token });
+    })
+    .catch((err) => {
+      console.error(err);
+      return res.status(UNAUTHORIZED).send({ message: err.message });
     });
 };
 
@@ -49,4 +83,4 @@ const getUser = (req, res) => {
     });
 };
 
-module.exports = { getUsers, getUser, createUser };
+module.exports = { getUsers, getUser, createUser, loginUser };
