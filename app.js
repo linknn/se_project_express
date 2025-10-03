@@ -1,6 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const mainRouter = require("./routes/index");
+const { createUser, loginUser } = require("./controllers/users");
 
 const app = express();
 const { PORT = 3001 } = process.env;
@@ -12,18 +13,17 @@ mongoose
   })
   .catch(console.error);
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: "68da24ecb30b231ab0157e2b", // paste the _id of the test user created in the previous step
-  };
-  next();
-});
-
 app.use(express.json());
+
+// auth routes - public
+app.post("/signup", createUser);
+app.post("/signin", loginUser);
+
 // mount main router
+// protects other routes in index.js
 app.use("/", mainRouter);
 
-// fallback 404
+// fallback 404 for unknown routes
 app.use((req, res) => {
   res.status(404).send({ message: "Requested resource not found" });
 });
