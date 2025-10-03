@@ -3,7 +3,6 @@ const mongoose = require("mongoose");
 const mainRouter = require("./routes/index");
 
 const app = express();
-
 const { PORT = 3001 } = process.env;
 
 mongoose
@@ -21,8 +20,10 @@ app.use((req, res, next) => {
 });
 
 app.use(express.json());
+// mount main router
 app.use("/", mainRouter);
 
+// fallback 404
 app.use((req, res) => {
   res.status(404).send({ message: "Requested resource not found" });
 });
