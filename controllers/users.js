@@ -25,7 +25,11 @@ const createUser = (req, res) => {
         password: hash,
       })
     )
-    .then((newUser) => res.status(201).send(newUser))
+    .then((newUser) => {
+      const userObject = newUser.toObject();
+      delete userObject.password;
+      res.status(201).send(userObject);
+    })
     .catch((err) => {
       console.error(err);
       if (err.name === "ValidationError") {
@@ -96,6 +100,7 @@ const getCurrentUser = (req, res) => {
 const updateUser = (req, res) => {
   const userId = req.user._id;
   const { name, avatar } = req.body;
+
   User.findByIdAndUpdate(
     userId,
     { name, avatar },
