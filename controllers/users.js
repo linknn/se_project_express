@@ -45,7 +45,7 @@ const createUser = (req, res) => {
 const loginUser = (req, res) => {
   const { email, password } = req.body;
 
-  User.findUserByCredentials({ email, password })
+  User.findUserByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
         expiresIn: "7d",
@@ -75,7 +75,7 @@ const getUsers = (req, res) => {
 
 const getCurrentUser = (req, res) => {
   const userId = req.user._id;
-
+  console.log(userId);
   User.findById(userId)
     .orFail(orFailWithNotFound("User"))
     .then((user) => res.status(200).send(user))
