@@ -1,6 +1,6 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-
+const { JWT_SECRET } = require("../utils/config");
 const User = require("../models/user");
 const {
   BAD_REQUEST,
@@ -10,7 +10,6 @@ const {
   CONFLICT,
   UNAUTHORIZED,
 } = require("../utils/errors");
-const { JWT_SECRET } = require("../utils/config");
 
 // CREATE
 const createUser = (req, res) => {
@@ -30,12 +29,16 @@ const createUser = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.name === "ValidationError") {
-        return res.status(BAD_REQUEST).send({ message: err.message });
+        return res.status(BAD_REQUEST).send({ message: "Invalid request" });
       }
       if (err.code === 11000) {
-        return res.status(CONFLICT).send({ message: err.message });
+        return res
+          .status(CONFLICT)
+          .send({ message: "Update conflict, refresh and try again" });
       }
-      return res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
+      return res
+        .status(INTERNAL_SERVER_ERROR)
+        .send({ message: "An error has occurred on the server." });
     });
 };
 
@@ -51,7 +54,10 @@ const loginUser = (req, res) => {
     })
     .catch((err) => {
       console.error(err);
-      return res.status(UNAUTHORIZED).send({ message: err.message });
+      return res.status(UNAUTHORIZED).send({
+        message:
+          "This page requires authentication. Please log in to continue.",
+      });
     });
 };
 
@@ -61,12 +67,14 @@ const getUsers = (req, res) => {
     .then((users) => res.send(users))
     .catch((err) => {
       console.error(err);
-      res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
+      res
+        .status(INTERNAL_SERVER_ERROR)
+        .send({ message: "An error has occurred on the server." });
     });
 };
 
-const getUser = (req, res) => {
-  const { userId } = req.params;
+const getCurrentUser = (req, res) => {
+  const userId = req.user._id;
 
   User.findById(userId)
     .orFail(orFailWithNotFound("User"))
@@ -74,13 +82,15 @@ const getUser = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.name === "CastError") {
-        return res.status(BAD_REQUEST).send({ message: err.message });
+        return res.status(BAD_REQUEST).send({ message: "Invalid request" });
       }
       if (err.name === "DocumentNotFoundError") {
-        return res.status(NOT_FOUND).send({ message: err.message });
+        return res.status(NOT_FOUND).send({ message: "Page not found" });
       }
-      return res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
+      return res
+        .status(INTERNAL_SERVER_ERROR)
+        .send({ message: "An error has occurred on the server." });
     });
 };
 
-module.exports = { getUsers, getUser, createUser, loginUser };
+module.exports = { getUsers, getCurrentUser, createUser, loginUser };
