@@ -1,6 +1,7 @@
 const ClothingItem = require("../models/clothingItem");
 const {
   BAD_REQUEST,
+  FORBIDDEN,
   INTERNAL_SERVER_ERROR,
   NOT_FOUND,
   orFailWithNotFound,
@@ -106,7 +107,7 @@ const deleteItem = (req, res) => {
     .then((item) => {
       if (item.owner.toString() !== userId) {
         return res
-          .status(403)
+          .status(FORBIDDEN)
           .send({ message: "You do not have permission to delete this item" });
       }
       return item

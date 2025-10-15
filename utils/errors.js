@@ -3,6 +3,8 @@ const BAD_REQUEST = 400;
 
 const UNAUTHORIZED = 401;
 
+const FORBIDDEN = 403;
+
 const NOT_FOUND = 404;
 // message: "Resource not found",
 
@@ -22,6 +24,7 @@ function orFailWithNotFound(resourceName = "Resource") {
 
 module.exports = {
   BAD_REQUEST,
+  FORBIDDEN,
   INTERNAL_SERVER_ERROR,
   NOT_FOUND,
   orFailWithNotFound,
