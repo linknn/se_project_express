@@ -93,4 +93,39 @@ const getCurrentUser = (req, res) => {
     });
 };
 
-module.exports = { getUsers, getCurrentUser, createUser, loginUser };
+const updateUser = (req, res) => {
+  const userId = req.user._id;
+  const { name, avatar } = req.body;
+  User.findByIdAndUpdate(
+    userId,
+    { name, avatar },
+    { new: true, runValidators: true }
+  )
+    .orFail(() => new Error("DocumentNotFoundError"))
+    .then((user) => res.send(user))
+    .catch((err) => {
+      console.error(err);
+
+      if (err.name === "ValidationError") {
+        return res
+          .status(BAD_REQUEST)
+          .send({ message: "Invalid data provided for updating profile" });
+      }
+
+      if (err.message === "DocumentNotFoundError") {
+        return res.status(NOT_FOUND).send({ message: "User not found" });
+      }
+
+      return res
+        .status(INTERNAL_SERVER_ERROR)
+        .send({ message: "An error has occurred on the server." });
+    });
+};
+
+module.exports = {
+  getUsers,
+  getCurrentUser,
+  createUser,
+  loginUser,
+  updateUser,
+};
