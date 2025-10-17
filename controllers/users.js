@@ -49,7 +49,15 @@ const createUser = (req, res) => {
 const loginUser = (req, res) => {
   const { email, password } = req.body;
 
-  User.findUserByCredentials(email, password)
+  if (password == null) {
+    return res
+      .status(BAD_REQUEST)
+      .send({ message: "Password field is required" });
+  }
+  if (email == null) {
+    return res.status(BAD_REQUEST).send({ message: "Email field is required" });
+  }
+  return User.findUserByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
         expiresIn: "7d",
