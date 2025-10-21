@@ -62,4 +62,4 @@ cd se_project_express
 ## 📽️ Project Pitch Video
 
 🎥 Check out my Project 13 pitch video where I explain authentication, key challenges, and outcomes:
-👉 [Watch Here]()
+👉 [Watch Here](https://drive.google.com/file/d/1W0nsXwcTYyQb5Uzyvy6k8iJJ2sNIHLwV/view?usp=sharing)
