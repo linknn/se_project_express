@@ -43,7 +43,7 @@ Built with **Node.js**, **Express**, and **MongoDB**, this project focuses on im
 ### 1. Clone the Repository
 
 ```bash
-git clone [https://github.com/linknn/se_project_express.git](https://github.com/linknn/se_project_express.git)
+git clone https://github.com/linknn/se_project_express.git
 cd se_project_express
 ```
 
